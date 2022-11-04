@@ -3,11 +3,11 @@ data "aws_s3_bucket" "source" {
 }
 
 data "aws_s3_bucket" "destination" {
-  bucket = var.destination_bucket_name
+  bucket   = var.destination_bucket_name
   provider = aws.dst
 }
 
-data "aws_iam_policy_document" "assume_role_policy_replication" {
+data "aws_iam_policy_document" "assume_role" {
   statement {
 
     actions = ["sts:AssumeRole"]
@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "assume_role_policy_replication" {
   }
 }
 
-data "aws_iam_policy_document" "replication" {
+data "aws_iam_policy_document" "this" {
   statement {
     actions = [
       "s3:GetReplicationConfiguration",
@@ -48,25 +48,25 @@ data "aws_iam_policy_document" "replication" {
   }
 }
 
-resource "aws_iam_role" "replication" {
+resource "aws_iam_role" "this" {
   name = var.iam_role_name
 
-  assume_role_policy = data.aws_iam_policy_document.assume_role_policy_replication.json
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-resource "aws_iam_policy" "replication" {
+resource "aws_iam_policy" "this" {
   name = var.iam_policy_name
 
-  policy = data.aws_iam_policy_document.replication.json
+  policy = data.aws_iam_policy_document.this.json
 }
 
-resource "aws_iam_role_policy_attachment" "replication" {
-  role       = aws_iam_role.replication.name
-  policy_arn = aws_iam_policy.replication.arn
+resource "aws_iam_role_policy_attachment" "this" {
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.this.arn
 }
 
-resource "aws_s3_bucket_replication_configuration" "replication" {
-  role   = aws_iam_role.replication.arn
+resource "aws_s3_bucket_replication_configuration" "this" {
+  role   = aws_iam_role.this.arn
   bucket = data.aws_s3_bucket.source.id
 
   rule {
