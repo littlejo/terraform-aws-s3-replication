@@ -4,6 +4,7 @@ data "aws_s3_bucket" "source" {
 
 data "aws_s3_bucket" "destination" {
   bucket = var.destination_bucket_name
+  provider = aws.dst
 }
 
 data "aws_iam_policy_document" "assume_role_policy_replication" {
